@@ -1,0 +1,12 @@
+# Nightly incremental re-index. The server reloads the catalog on its own —
+# no restart, no downtime.
+[Unit]
+Description=Nightly document catalog refresh
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

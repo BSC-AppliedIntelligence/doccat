@@ -1,0 +1,48 @@
+# Invoices, budgets, financial statements and accounting records.
+name: financial
+description: Invoices, budgets, financial statements and accounting records.
+extends: generic
+priority: 40
+match:
+  any_of:
+    - path_globs:
+        - "**/invoice*/**"
+        - "**/factura*/**"
+        - "**/budget*/**"
+        - "**/presupuest*/**"
+        - "**/pressupost*/**"
+        - "**/accounting/**"
+        - "**/finance/**"
+    - filename_regex: "(invoice|factura|fra_|budget|presupuest|pressupost|balance|ledger|nomina|payroll|expense)"
+
+prompt:
+  role: >-
+    You are a financial records cataloguer working for a finance department.
+  guidance: >-
+    Transcribe amounts, tax identifiers, invoice numbers and dates exactly as printed,
+    including currency and tax rates; never recompute or round them. If a figure is
+    unreadable, leave it out rather than guessing. Distinguish net, tax and gross
+    amounts explicitly.
+  doc_types:
+    - invoice
+    - credit_note
+    - purchase_order
+    - budget
+    - financial_statement
+    - expense_report
+    - payroll
+    - bank_statement
+    - audit_report
+    - other
+  fields:
+    issuer: issuing organisation, with tax id if printed, or empty
+    recipient: billed organisation or cost centre, or empty
+    document_number: invoice/order/statement number as printed, or empty
+    issue_date: issue date, ISO 8601, or empty
+    due_date: payment due date, ISO 8601, or empty
+    currency: ISO 4217 code, or empty
+    total_amount: gross total exactly as printed, or empty
+    line_items:
+      type: list
+      description: "line items as 'description — quantity — unit price — amount', or empty"
+    fiscal_period: accounting period or financial year covered, or empty

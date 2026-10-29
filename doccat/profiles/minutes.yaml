@@ -1,0 +1,52 @@
+# Meeting minutes, agendas and internal correspondence: short documents whose
+# value lies in decisions, owners and dates.
+name: minutes
+description: Meeting minutes, agendas and correspondence.
+extends: generic
+priority: 35
+match:
+  any_of:
+    - path_globs:
+        - "**/minutes/**"
+        - "**/actas/**"
+        - "**/actes/**"
+        - "**/meetings/**"
+        - "**/correspondence/**"
+    - filename_regex: "(acta|acte_|minutes|agenda|reunion|reuni_|memo|carta|letter|email)"
+
+excerpt:
+  # These are short: read them whole rather than sampling.
+  strategy: full
+  max_chars: 24000
+
+prompt:
+  role: >-
+    You are cataloguing meeting records and correspondence for an organisation's
+    institutional memory.
+  guidance: >-
+    Decisions, owners and dates are what people search for: record who agreed to what,
+    by when, and what is still open. Keep attendee names and their roles. Do not turn a
+    discussion into a decision — if something was only discussed, say so.
+  doc_types:
+    - meeting_minutes
+    - agenda
+    - decision_record
+    - letter
+    - email
+    - memo
+    - other
+  fields:
+    meeting_date: date of the meeting or letter, ISO 8601, or empty
+    attendees:
+      type: list
+      description: "attendees or correspondents, as 'Name (role/organisation)'"
+    decisions:
+      type: list
+      description: decisions taken, each stated as agreed
+    action_items:
+      type: list
+      description: "actions as 'action — owner — due date', or empty"
+    open_issues:
+      type: list
+      description: matters discussed but left unresolved, or empty
+    follow_up_date: next meeting or review date, ISO 8601, or empty

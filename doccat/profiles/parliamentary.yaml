@@ -1,0 +1,83 @@
+# Plenary and committee proceedings: long, uniformly structured transcripts
+# where the middle carries as much signal as the opening.
+name: parliamentary
+description: Parliamentary and council proceedings, debates and session transcripts.
+extends: generic
+priority: 45
+match:
+  any_of:
+    - path_globs:
+        - "**/plenos/**"
+        - "**/plens/**"
+        - "**/diario*sesion*/**"
+        - "**/diari*sessi*/**"
+        - "**/parlament*/**"
+        - "**/congreso/**"
+        - "**/senado/**"
+    - filename_regex: "(^DS[CS]|diario_?de_?sesion|diari_?de_?sessi|pleno|ple_|plenari|comision|comissi)"
+
+excerpt:
+  # A session is uniform from start to end, so sample across it rather than
+  # reading only the opening and the closing.
+  strategy: sampled
+  head_chars: 12000
+  tail_chars: 4000
+  samples: 4
+  max_chars: 48000
+
+prompt:
+  role: >-
+    You are a cataloguer of parliamentary proceedings. You describe a session
+    transcript so that a researcher can tell which debates, motions and speakers it
+    contains without reading it.
+  guidance: >-
+    A session covers several unrelated items — enumerate them rather than summarising
+    only the first. Record the chamber and the sitting date exactly as they appear in
+    the document header; never infer them from the file name or the folder. Attribute
+    positions to the speaker and the parliamentary group that expressed them, and keep
+    the official title of each agenda item.
+  doc_types:
+    - plenary_transcript
+    - committee_transcript
+    - motion
+    - written_question
+    - oral_question
+    - bill
+    - amendment
+    - resolution
+    - meeting_minutes
+    - other
+  fields:
+    chamber: the chamber or body as stated in the document header (e.g. 'Congreso de los Diputados', 'Senado', 'Ple del Parlament'), or empty if not stated
+    session_date: sitting date in ISO 8601, taken from the document header, or empty
+    session_number: session/sitting number as printed, or empty
+    agenda_items:
+      type: list
+      description: the official title of each item debated, in order
+    speakers:
+      type: list
+      description: "speakers, as 'Name (parliamentary group or office)'"
+    parties:
+      type: list
+      description: parliamentary groups or parties taking part
+    motions_and_votes:
+      type: list
+      description: motions, bills or amendments put to the floor with their outcome when stated, e.g. 'PNL 161/000123 — approved 178/165'
+    decisions:
+      type: list
+      description: decisions, agreements or commitments recorded in the session
+
+# Who proposed what, who voted which way, who belongs to which group — a
+# session transcript is dense with exactly this, which is why it gets a
+# dedicated second call rather than competing with the rest of the schema
+# for the model's attention (see docs/GRAPH.md Decision 2).
+graph:
+  entity_types: [person, parliamentary_group, chamber, motion, bill]
+  relation_types:
+    - member_of          # a speaker is a member of a parliamentary group
+    - proposed_by          # a motion/bill was proposed by a person or group
+    - voted_for            # a group/person voted for a motion
+    - voted_against         # a group/person voted against a motion
+    - amends               # a motion amends a prior bill/agreement
+    - spoke_on             # a person spoke on an agenda item
+  dedicated_pass: true

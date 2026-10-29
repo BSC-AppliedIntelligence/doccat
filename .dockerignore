@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+tests
+docs
+deploy/docker-compose.yml
+.env
+catalog_data
+*.jsonl
+*.pptx
+extracted_text
+llm_errors

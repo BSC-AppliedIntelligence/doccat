@@ -1,0 +1,52 @@
+# Research papers, theses, preprints and scientific reports.
+name: academic
+description: Research papers, theses, preprints and scientific reports.
+extends: generic
+priority: 35
+match:
+  any_of:
+    - path_globs:
+        - "**/papers/**"
+        - "**/publications/**"
+        - "**/preprints/**"
+        - "**/thesis/**"
+        - "**/tesis/**"
+    - filename_regex: "(arxiv|preprint|thesis|tesis|paper|proceedings|journal)"
+
+prompt:
+  role: >-
+    You are a research librarian cataloguing scientific literature for a review team.
+  guidance: >-
+    Report the contribution the authors actually claim, the method they used and the
+    evidence they present, without evaluating or improving on it. Keep numeric results
+    with their units and their reported uncertainty. If the work is a preprint or
+    unrefereed, say so.
+  doc_types:
+    - journal_article
+    - conference_paper
+    - preprint
+    - thesis
+    - technical_report
+    - review_article
+    - dataset_description
+    - poster
+    - other
+  fields:
+    authors:
+      type: list
+      description: authors in the order printed
+    affiliations:
+      type: list
+      description: institutions of the authors
+    venue: journal, conference or repository, with year, or empty
+    doi: DOI or arXiv identifier, or empty
+    research_question: the question or problem the work addresses, in one sentence
+    methods:
+      type: list
+      description: methods, models, datasets or instruments used
+    findings:
+      type: list
+      description: the main results as reported, with figures and units where given
+    limitations:
+      type: list
+      description: limitations the authors state, or empty

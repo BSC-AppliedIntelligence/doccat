@@ -1,0 +1,72 @@
+# Base cataloguing profile. Every other profile extends this one, so the core
+# metadata schema stays consistent across domains and the MCP server's search
+# works identically on every catalog.
+name: generic
+description: Default profile — works on any document collection.
+priority: 0
+# No `match` block: generic is the fallback, never auto-routed over a
+# domain profile.
+
+prompt:
+  role: >-
+    You are a document cataloguer. You read a document and describe it so that an
+    AI agent searching the collection later can tell, from your description alone,
+    whether this document is worth opening.
+  instructions: >-
+    Base every field strictly on the content shown. Never invent facts, figures or
+    names. If something is genuinely not determinable from the content, use an empty
+    string or an empty list rather than guessing.
+  doc_types:
+    - report
+    - contract
+    - invoice
+    - manual
+    - policy
+    - presentation
+    - correspondence
+    - academic_paper
+    - meeting_minutes
+    - form
+    - guide
+    - webpage
+    - other
+  fields:
+    title: best-guess document title
+    summary: 3-5 sentence summary of what the document contains and its purpose
+    description: >-
+      comprehensive description, 2-4 detailed paragraphs: the document's purpose and
+      audience, its structure and main sections, the specific procedures, data, rules
+      and figures it contains, and what an agent could answer from it. Be concrete:
+      name the actual sections, systems, forms, roles and values that appear.
+    doc_type: "one of: {doc_types}"
+    language: ISO 639-1 code of the main language, e.g. 'en', 'es', 'ca'
+    keywords:
+      type: list
+      description: 8-15 specific search keywords or phrases
+    topics:
+      type: list
+      description: 2-5 broad subject areas
+    entities:
+      type: object
+      fields:
+        people:
+          type: list
+          description: named persons
+        organizations:
+          type: list
+          description: companies, institutions
+        places:
+          type: list
+          description: locations
+        dates:
+          type: list
+          description: significant dates mentioned, ISO format when possible
+    questions_answered:
+      type: list
+      description: 3-6 example questions this document could help answer
+
+excerpt:
+  strategy: head_tail
+  head_chars: 8000
+  tail_chars: 2000
+  max_chars: 60000

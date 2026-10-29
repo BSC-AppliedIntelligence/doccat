@@ -1,0 +1,21 @@
+# mcpo OpenAPI proxy — only needed for Open WebUI, whose native MCP support is
+# still experimental. It wraps the running MCP server; no server change.
+[Unit]
+Description=mcpo OpenAPI proxy for the document catalog MCP server
+After=doc-catalog-mcp.service
+Wants=doc-catalog-mcp.service
+
+[Service]
+Type=simple
+User=doccat
+Group=doccat
+EnvironmentFile=/etc/doc-catalog-mcp.env
+# Set MCPO_API_KEY in the env file to require a Bearer token.
+ExecStart=/bin/sh -c '/opt/doc-catalog-mcp/.venv/bin/mcpo --host 0.0.0.0 \
+    --port ${MCPO_PORT:-8011} ${MCPO_API_KEY:+--api-key "$MCPO_API_KEY"} \
+    --server-type streamable-http -- http://127.0.0.1:${MCP_PORT:-8010}/mcp'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+# One-shot indexing job, driven by doc-catalog-indexer.timer.
+# Shares /etc/doc-catalog-mcp.env with the server so both agree on the paths.
+[Unit]
+Description=Rebuild the document catalog (incremental)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=doccat
+Group=doccat
+WorkingDirectory=/opt/doc-catalog-mcp
+EnvironmentFile=/etc/doc-catalog-mcp.env
+EnvironmentFile=-/etc/doc-catalog-indexer.env
+ExecStart=/opt/doc-catalog-mcp/.venv/bin/doccat index --root ${DOCS_ROOT}
+# Indexing is long and bursty: keep it off the server's CPU share.
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=infinity
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/doc-catalog-mcp
+
+[Install]
+WantedBy=multi-user.target

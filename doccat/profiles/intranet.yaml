@@ -1,0 +1,48 @@
+# Internal corporate documentation: HR policies, forms, circulars, org
+# procedures. This is the profile behind the original intranet deployment.
+name: intranet
+description: Internal corporate documents — policies, forms, circulars, HR material.
+extends: generic
+priority: 30
+match:
+  any_of:
+    - path_globs:
+        - "**/intranet/**"
+        - "**/rrhh/**"
+        - "**/hr/**"
+        - "**/normativa/**"
+        - "**/circular*/**"
+    - filename_regex: "(circular|normativa|politica|pol_tica|reglament|formulari|formulario|instruccio|rrhh)"
+
+prompt:
+  role: >-
+    You are cataloguing an organisation's internal documentation for an assistant that
+    answers staff questions ("how do I request leave?", "which form do I need?").
+  guidance: >-
+    Write the description from the reader's point of view: which staff situation the
+    document resolves, which form or system to use, who approves it and within what
+    deadline. Name departments, roles, form codes and internal applications exactly as
+    the document does. Phrase `questions_answered` the way an employee would actually ask.
+  doc_types:
+    - policy
+    - procedure
+    - form
+    - circular
+    - internal_regulation
+    - onboarding_material
+    - organisational_chart
+    - meeting_minutes
+    - presentation
+    - other
+  fields:
+    applies_to:
+      type: list
+      description: staff groups, departments or sites the document applies to
+    responsible_unit: department or role that owns the document or the process, or empty
+    forms_and_systems:
+      type: list
+      description: form codes, templates or internal applications referenced
+    deadlines:
+      type: list
+      description: deadlines, notice periods or validity dates stated, or empty
+    supersedes: document or version this one replaces, if stated, or empty

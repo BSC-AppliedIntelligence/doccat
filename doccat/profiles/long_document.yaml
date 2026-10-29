@@ -1,0 +1,32 @@
+# Long documents whose middle matters as much as their edges. Splits the text
+# into chunks, takes notes on each (map), then catalogues from the notes
+# (reduce) — so the summary and description cover the whole document rather
+# than only its first pages.
+name: long_document
+description: Map-reduce cataloguing for very long documents.
+extends: generic
+priority: 10
+match:
+  min_bytes: 2000000          # > ~2 MB of PDF/Office, usually hundreds of pages
+
+excerpt:
+  strategy: map_reduce
+  head_chars: 8000
+  tail_chars: 2000
+  chunk_chars: 24000
+  chunk_overlap: 500
+  max_chunks: 12
+
+prompt:
+  guidance: >-
+    This document is long. Make the summary and description reflect its whole span —
+    early, middle and late sections alike — and say explicitly which parts cover what.
+  map_instructions: >-
+    Read this part of a long document and write dense factual notes on it: the sections
+    it contains, the procedures, rules, data, figures, named people, organisations,
+    places and dates that appear, and the questions this part could answer. Plain prose
+    or bullets, no JSON, no preamble. Describe only what is in this part.
+  reduce_instructions: >-
+    The notes below cover a long document part by part, in order. Catalogue the document
+    as a whole: the summary and description must span all parts, not just the first.
+    Merge duplicate entities and keep the most specific version of each fact.

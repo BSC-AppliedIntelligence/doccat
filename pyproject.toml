@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doc-catalog-mcp"
+version = "0.4.0"
+description = "AI-readable metadata catalogs of document repositories, served over MCP — retrieval by reading, not by vector similarity."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "mcp>=1.9,<2",          # 2.x moves the FastMCP API; pin until the server is ported
+    "pydantic>=2.0",
+    "httpx>=0.27",
+    "PyYAML>=6.0",          # cataloguing profiles
+    "pypdfium2>=4.30",  # PDF text extraction (BSD-3-Clause / Apache-2.0)
+    "python-docx>=1.1",
+    "python-pptx>=1.0",
+    "openpyxl>=3.1",
+    "json_repair>=0.30",
+    "networkx>=3.0",         # corpus graph: entity resolution, traversal, community detection
+]
+
+[project.optional-dependencies]
+proxy = ["mcpo"]            # OpenAPI wrapper for Open WebUI
+dev = ["pytest>=8.0", "pytest-timeout>=2.2"]
+
+[project.scripts]
+doccat = "doccat.cli:main"
+doc-catalog-server = "server:main"
+
+[tool.setuptools]
+packages = ["doccat"]
+py-modules = ["server", "extractors", "indexer", "json_indexer"]
+
+[tool.setuptools.package-data]
+doccat = ["profiles/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+timeout = 120
+filterwarnings = ["error::DeprecationWarning:doccat.*"]

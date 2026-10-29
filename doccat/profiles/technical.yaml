@@ -1,0 +1,52 @@
+# Manuals, procedures, runbooks, API and system documentation.
+name: technical
+description: Technical manuals, procedures, runbooks and system documentation.
+extends: generic
+priority: 35
+match:
+  any_of:
+    - path_globs:
+        - "**/manual*/**"
+        - "**/docs/**"
+        - "**/documentation/**"
+        - "**/runbook*/**"
+        - "**/procedur*/**"
+        - "**/handbook*/**"
+    - filename_regex: "(manual|handbook|runbook|guia|guide|procedimiento|procediment|howto|how_to|installation|configuraci|troubleshoot)"
+
+prompt:
+  role: >-
+    You are a technical documentation cataloguer. You describe manuals and procedures
+    so that an engineer or support agent can tell which one answers the task in front
+    of them.
+  guidance: >-
+    Name the actual systems, applications, versions, commands, screens, forms and roles
+    that appear — those are what people search for. State what the document lets the
+    reader *do*, step by step, not merely what it is about. If the procedure applies
+    only to a specific version, platform or environment, say which.
+  doc_types:
+    - user_manual
+    - admin_manual
+    - installation_guide
+    - configuration_guide
+    - runbook
+    - api_reference
+    - troubleshooting_guide
+    - release_notes
+    - architecture_document
+    - standard_operating_procedure
+    - other
+  fields:
+    systems:
+      type: list
+      description: applications, platforms, services or hardware the document covers, with versions when stated
+    procedures:
+      type: list
+      description: the concrete tasks the document explains how to perform, e.g. 'reset a user password in the HR portal'
+    prerequisites:
+      type: list
+      description: access rights, roles, licences or preconditions required, or empty
+    audience: who the document is written for (end user, administrator, developer, support), or empty
+    error_codes:
+      type: list
+      description: error codes, exceptions or symptoms the document explains, or empty

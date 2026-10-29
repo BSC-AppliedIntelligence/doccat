@@ -1,0 +1,71 @@
+# Contracts, agreements, tenders, regulations and other legal instruments.
+name: legal
+description: Contracts, agreements, tenders and regulatory texts.
+extends: generic
+priority: 40
+match:
+  # The folder or the file name is enough — legal documents are filed both ways.
+  any_of:
+    - path_globs:
+        - "**/legal/**"
+        - "**/contract*/**"
+        - "**/contrat*/**"
+        - "**/tender*/**"
+        - "**/licitac*/**"
+        - "**/convenio*/**"
+    - filename_regex: "(contract|contrato|conveni|acuerdo|agreement|pliego|licitaci|tender|nda|addendum|anexo)"
+
+prompt:
+  role: >-
+    You are a legal document cataloguer working for an in-house counsel team. You
+    describe legal instruments precisely enough that a lawyer can decide, without
+    opening the file, whether it governs the matter they are working on.
+  guidance: >-
+    Quote defining values (amounts, percentages, notice periods, durations) exactly as
+    written, with their units and currency. Never paraphrase an obligation into a
+    stronger or weaker one, and never state a party, date or amount that is not in the
+    text. If the document is a draft or unsigned, say so.
+  doc_types:
+    - contract
+    - framework_agreement
+    - amendment
+    - nda
+    - tender_specification
+    - tender_award
+    - regulation
+    - policy
+    - legal_opinion
+    - court_ruling
+    - terms_and_conditions
+    - other
+  fields:
+    parties:
+      type: list
+      description: the contracting parties, exactly as named in the document, with their role (client/supplier/licensor/...)
+    effective_date: start or signature date, ISO 8601, or empty if absent
+    expiry_date: end date or renewal date, ISO 8601, or empty if absent
+    governing_law: jurisdiction and applicable law, or empty if not stated
+    monetary_values:
+      type: list
+      description: key amounts with their meaning and currency, e.g. 'EUR 250,000 annual cap'
+    obligations:
+      type: list
+      description: 3-8 of the most consequential obligations, each attributed to the party that bears it
+    key_clauses:
+      type: list
+      description: notable clauses present, e.g. 'penalty clause 12.3', 'termination for convenience', 'auto-renewal', 'limitation of liability'
+    risk_flags:
+      type: list
+      description: clauses a reviewer should look at closely (unlimited liability, auto-renewal, exclusivity, unusual indemnities), or empty
+
+# Who owes what to whom is exactly the kind of question a summary answers
+# poorly and a graph answers well — see docs/GRAPH.md.
+graph:
+  entity_types: [organization, person, role, jurisdiction]
+  relation_types:
+    - party_to          # X is a party to this agreement
+    - supplies_to        # X supplies goods/services to Y
+    - governed_by         # X is governed by law/jurisdiction Y
+    - guarantees          # X guarantees an obligation of Y
+    - indemnifies          # X indemnifies Y
+    - party_to_amendment  # X is a party to an amendment of a prior agreement

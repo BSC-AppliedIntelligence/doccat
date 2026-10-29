@@ -1,0 +1,74 @@
+# doc_catalog_mcp — full stack.
+#
+#   cp .env.example .env && edit it
+#   docker compose -f deploy/docker-compose.yml --profile index run --rm indexer
+#   docker compose -f deploy/docker-compose.yml up -d server
+#
+# `server` and `mcpo` run continuously; `indexer` is a one-shot job (it sits
+# behind the `index` compose profile so `up` never starts it by accident).
+# All three share one image and one catalog volume.
+
+x-common: &common
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+    args:
+      WITH_LIBREOFFICE: ${WITH_LIBREOFFICE:-0}
+  image: doc-catalog-mcp:${IMAGE_TAG:-latest}
+  restart: unless-stopped
+  environment: &common-env
+    DOCS_ROOT: /data/documents
+    CATALOG_PATH: ${CATALOG_PATH:-/data/catalog/catalog.jsonl}
+    TEXT_CACHE: /data/catalog/extracted_text
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  volumes:
+    - ${DOCUMENTS_DIR:?set DOCUMENTS_DIR in .env}:/data/documents:ro
+    - ${CATALOG_DIR:-./catalog_data}:/data/catalog
+    - ${PROFILES_DIR:-./profiles}:/app/profiles:ro
+    - ${CONFIG_DIR:-./config}:/app/config:ro
+
+services:
+  # ---------------------------------------------------------------- MCP server
+  server:
+    <<: *common
+    command: ["serve"]
+    environment:
+      <<: *common-env
+      MCP_PORT: "8000"
+      MCP_STATELESS: "true"
+    ports:
+      - "${MCP_BIND:-127.0.0.1}:${MCP_PORT:-8000}:8000"
+
+  # ------------------------------------------------- OpenAPI proxy (Open WebUI)
+  mcpo:
+    <<: *common
+    command: ["mcpo"]
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+      MCP_URL: http://server:8000/mcp
+      MCPO_PORT: "8001"
+      MCPO_API_KEY: ${MCPO_API_KEY:-}
+    ports:
+      - "${MCPO_BIND:-127.0.0.1}:${MCPO_PORT:-8001}:8001"
+    profiles: ["proxy"]
+
+  # -------------------------------------------------------------- indexing job
+  indexer:
+    <<: *common
+    command: ["index"]
+    restart: "no"
+    environment:
+      <<: *common-env
+      LLM_BASE_URL: ${LLM_BASE_URL:?set LLM_BASE_URL in .env}
+      LLM_MODEL: ${LLM_MODEL:?set LLM_MODEL in .env}
+      LLM_API_KEY: ${LLM_API_KEY:-not-needed}
+      LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-4096}
+      HF_BILL_TO: ${HF_BILL_TO:-}
+      DOCCAT_LLM_WORKERS: ${DOCCAT_LLM_WORKERS:-8}
+      DOCCAT_EXTRACT_WORKERS: ${DOCCAT_EXTRACT_WORKERS:-0}
+      DOCCAT_PROFILE: ${DOCCAT_PROFILE:-}
+      LLM_RPS: ${LLM_RPS:-0}
+    profiles: ["index"]

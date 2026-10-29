@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+
+# Local configuration and data (root-anchored so doccat/profiles/ stays tracked)
+.env
+/doccat.yaml
+/doccat.yml
+/.doccat.yaml
+/config/
+/catalog_data/
+/profiles/
+extracted_text/
+llm_errors/
+*.jsonl.tmp
+*.jsonl.journal
+needs_ocr.txt
+needs_conversion.txt
